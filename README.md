@@ -1,2 +1,2 @@
 # js-pace
-Performance testing of Javascript
+Performance measuring of Javascript

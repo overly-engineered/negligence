@@ -1,2 +1,2 @@
-# js-pace
-Performance measuring of Javascript
+# benchmarkjs
+coming soon hopefully.

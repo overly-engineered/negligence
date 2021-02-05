@@ -1,5 +1,5 @@
 import test from "ava";
-import generateMockData, { PRECISE, QUICK, STANDARD, counts } from "./../src/batch.js";
+import generateMockData, { PRECISE, QUICK, STANDARD, counts } from "./../src/data.js";
 import { STRING, INT, FLOAT, BOOLEAN, BIGINT } from "../src/utils/dataTypes.js";
 
 const intSchema = [INT];

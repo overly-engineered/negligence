@@ -32,6 +32,8 @@
     "benchmarking",
     "performance"
   ],
+  "author": "Jamie Pettman",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/overly-engineered/benchmarkjs/issues"
   },

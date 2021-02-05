@@ -1,4 +1,2 @@
-# js-pace
-
-Performance benchmarking for Javascript
-
+# negligence
+coming soon hopefully.

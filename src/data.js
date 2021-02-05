@@ -1,13 +1,13 @@
 // Creates the batches data for execution
 
-export const PRECISE = "precise";
-export const QUICK = "quick";
+export const BIG = "big";
+export const SMALL = "small";
 export const STANDARD = "standard";
 
 export const counts = {
-  [PRECISE]: 10_000,
+  [BIG]: 10_000,
   [STANDARD]: 1_000,
-  [QUICK]: 100
+  [SMALL]: 100
 };
 
 const DEFAULT_COUNT = STANDARD;
@@ -17,7 +17,8 @@ import dataTypeGenerators from "./utils/dataTypeGenerators.js";
 
 const DEFAULT_SCHEMA = INT;
 
-const schemaGenerator = (schema, amount) => {
+const dataGenerator = ({ schema, complexity }) => {
+
   const getGenerator = type => {
     return dataTypeGenerators[type]();
   };
@@ -31,7 +32,7 @@ const schemaGenerator = (schema, amount) => {
           if (typeof val[0] === "object") {
             s[key] = gen(val[0]);
           } else {
-            s[key] = [...Array(amount)].map(() => {
+            s[key] = [...Array(complexity)].map(() => {
               if (typeof val === "function") {
                 return val();
               } else {
@@ -60,29 +61,9 @@ const schemaGenerator = (schema, amount) => {
   }
 };
 
-export default ({ schema = DEFAULT_SCHEMA, precision = DEFAULT_COUNT } = {}) => {
+export default ({ schema = DEFAULT_SCHEMA, complexity = DEFAULT_COUNT } = {}) => {
+  const arrayAmount = Number.isInteger(complexity) ? complexity : counts[complexity];
   return Array.isArray(schema)
-    ? [...Array(counts[precision])].map(() => schemaGenerator(schema[0], counts[precision]))
-    : schemaGenerator(schema, counts[precision]);
+    ? [...Array(arrayAmount)].map(() => dataGenerator({ schema: schema[0], complexity: arrayAmount }))
+    : dataGenerator({ schema, complexity: arrayAmount });
 };
-
-const demoSchema = [
-  {
-    "a string": STRING,
-    "an integer": INT,
-    "a float": FLOAT,
-    "a boolean": BOOLEAN,
-    "a bigint": BIGINT,
-    "an array": [STRING],
-    "a second Array": [{ abc: STRING, 123: INT }]
-  }
-];
-
-// const a = generateMockData({ schema: STRING });
-// const b = generateMockData({ schema: INT });
-// const c = generateMockData({ schema: demoSchema });
-// const d = generateMockData();
-// console.log(a);
-// console.log(b);
-// console.log(c);
-// console.log(d);

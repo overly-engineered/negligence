@@ -1,5 +1,5 @@
 import test from "ava";
-import generateMockData, { PRECISE, QUICK, STANDARD, counts } from "./../src/data.js";
+import generateMockData, { BIG, SMALL, STANDARD, counts } from "./../src/data.js";
 import { STRING, INT, FLOAT, BOOLEAN, BIGINT } from "../src/utils/dataTypes.js";
 
 const intSchema = [INT];
@@ -16,38 +16,38 @@ const demoSchema = [
   }
 ];
 
-/** Precision counts */
-test(`Precision variables -> PRECISE produces array of length ${counts[PRECISE]}`, t => {
-  const data = generateMockData({ schema: intSchema, precision: PRECISE });
-  t.is(data.length, counts[PRECISE]);
+/** Complexity counts */
+test(`Complexity variables -> BIG produces array of length ${counts[BIG]}`, t => {
+  const data = generateMockData({ schema: intSchema, complexity: BIG });
+  t.is(data.length, counts[BIG]);
 });
-test(`Precision variables -> QUICK produces array of length ${counts[QUICK]}`, t => {
-  const data = generateMockData({ schema: intSchema, precision: QUICK });
-  t.is(data.length, counts[QUICK]);
+test(`Complexity variables -> SMALL produces array of length ${counts[SMALL]}`, t => {
+  const data = generateMockData({ schema: intSchema, complexity: SMALL });
+  t.is(data.length, counts[SMALL]);
 });
-test(`Precision variables -> STANDARD produces array of length ${counts[STANDARD]}`, t => {
-  const data = generateMockData({ schema: intSchema, precision: STANDARD });
+test(`Complexity variables -> STANDARD produces array of length ${counts[STANDARD]}`, t => {
+  const data = generateMockData({ schema: intSchema, complexity: STANDARD });
   t.is(data.length, counts[STANDARD]);
 });
 
 /** Complex schemas */
-test(`Complex schema -> assert array length ${counts[QUICK]}`, t => {
-  const data = generateMockData({ schema: demoSchema, precision: QUICK });
-  t.is(data.length, counts[QUICK]);
+test(`Complex schema -> assert array length ${counts[SMALL]}`, t => {
+  const data = generateMockData({ schema: demoSchema, complexity: SMALL });
+  t.is(data.length, counts[SMALL]);
 });
 
 test(`Complex schema -> assert nested Array Length`, t => {
-  const data = generateMockData({ schema: demoSchema, precision: QUICK });
-  t.is(data[0]["an array"].length, counts[QUICK]);
+  const data = generateMockData({ schema: demoSchema, complexity: SMALL });
+  t.is(data[0]["an array"].length, counts[SMALL]);
 });
 
 test(`Complex schema -> object keys match`, t => {
-  const data = generateMockData({ schema: demoSchema, precision: QUICK });
+  const data = generateMockData({ schema: demoSchema, complexity: SMALL });
   t.deepEqual(Object.keys(data[0]), Object.keys(demoSchema[0]));
 });
 
 test(`Complex schema -> nested object keys match`, t => {
-  const data = generateMockData({ schema: demoSchema, precision: QUICK });
+  const data = generateMockData({ schema: demoSchema, complexity: SMALL });
   const nestedSchemaKeys = Object.keys(demoSchema[0]["a second Array"][0]);
   const nestedDataKeys = Object.keys(data[0]["a second Array"]);
   t.deepEqual(nestedDataKeys, nestedSchemaKeys);

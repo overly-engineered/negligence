@@ -7,7 +7,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "solo": "node ./src/batch.js",
+    "solo": "node ./index.js",
     "test": "ava --verbose",
     "test:watch": "ava --verbose --watch",
     "lint": "eslint src",

@@ -1,6 +1,10 @@
 {
-  "name": "pace-js",
+  "name": "benchmarkjs",
+  "description": "Performance benchmarking for Javascript",
   "version": "1.0.0",
+  "author": "Jamie Pettman",
+  "license": "MIT",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "solo": "node ./src/batch.js",
@@ -15,5 +19,21 @@
     "eslint": "7.19.0",
     "rollup": "2.38.4"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/overly-engineered/benchmarkjs.git"
+  },
+  "keywords": [
+    "javascript",
+    "benchmarking",
+    "performance"
+  ],
+  "bugs": {
+    "url": "https://github.com/overly-engineered/benchmarkjs/issues"
+  },
+  "homepage": "https://github.com/overly-engineered/benchmarkjs#readme"
 }

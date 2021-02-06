@@ -1,5 +1,5 @@
 {
-  "name": "benchmarkjs",
+  "name": "negligence",
   "description": "Performance benchmarking for Javascript",
   "version": "1.0.0",
   "author": "Jamie Pettman",
@@ -32,8 +32,6 @@
     "benchmarking",
     "performance"
   ],
-  "author": "Jamie Pettman",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/overly-engineered/benchmarkjs/issues"
   },

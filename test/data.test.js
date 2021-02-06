@@ -1,5 +1,5 @@
 import test from "ava";
-import generateMockData, { BIG, SMALL, STANDARD, counts } from "./../src/data.js";
+import generateMockData, { BIG, SMALL, STANDARD, complexityCounts } from "./../src/data.js";
 import { STRING, INT, FLOAT, BOOLEAN, BIGINT } from "../src/utils/dataTypes.js";
 
 const intSchema = [INT];
@@ -16,29 +16,29 @@ const demoSchema = [
   }
 ];
 
-/** Complexity counts */
-test(`Complexity variables -> BIG produces array of length ${counts[BIG]}`, t => {
+/** Complexity complexityCounts */
+test(`Complexity variables -> BIG produces array of length ${complexityCounts[BIG]}`, t => {
   const data = generateMockData({ schema: intSchema, complexity: BIG });
-  t.is(data.length, counts[BIG]);
+  t.is(data.length, complexityCounts[BIG]);
 });
-test(`Complexity variables -> SMALL produces array of length ${counts[SMALL]}`, t => {
+test(`Complexity variables -> SMALL produces array of length ${complexityCounts[SMALL]}`, t => {
   const data = generateMockData({ schema: intSchema, complexity: SMALL });
-  t.is(data.length, counts[SMALL]);
+  t.is(data.length, complexityCounts[SMALL]);
 });
-test(`Complexity variables -> STANDARD produces array of length ${counts[STANDARD]}`, t => {
+test(`Complexity variables -> STANDARD produces array of length ${complexityCounts[STANDARD]}`, t => {
   const data = generateMockData({ schema: intSchema, complexity: STANDARD });
-  t.is(data.length, counts[STANDARD]);
+  t.is(data.length, complexityCounts[STANDARD]);
 });
 
 /** Complex schemas */
-test(`Complex schema -> assert array length ${counts[SMALL]}`, t => {
+test(`Complex schema -> assert array length ${complexityCounts[SMALL]}`, t => {
   const data = generateMockData({ schema: demoSchema, complexity: SMALL });
-  t.is(data.length, counts[SMALL]);
+  t.is(data.length, complexityCounts[SMALL]);
 });
 
 test(`Complex schema -> assert nested Array Length`, t => {
   const data = generateMockData({ schema: demoSchema, complexity: SMALL });
-  t.is(data[0]["an array"].length, counts[SMALL]);
+  t.is(data[0]["an array"].length, complexityCounts[SMALL]);
 });
 
 test(`Complex schema -> object keys match`, t => {
@@ -87,4 +87,34 @@ test(`Data types -> fn`, t => {
 test(`Data types - nested fn`, t => {
   const data = generateMockData({ schema: { intArray: [INT], int: INT, fn: () => 1 } });
   t.is(data.fn, 1);
+});
+
+test(`Error -> Provide an invalid string complexity`, t => {
+  const invalidComplexity = "ABC";
+  const error = t.throws(
+    () => {
+      generateMockData({schema:demoSchema, complexity: invalidComplexity});
+    },
+    { instanceOf: Error }
+  );
+
+  t.is(
+    error.message,
+    `Invalid complexity provided(${invalidComplexity}). Allowed values are 'big', 'standard', 'small', or an integer`
+  );
+});
+
+test(`Error -> Provide an invalid array complexity`, t => {
+  const invalidComplexity = [];
+  const error = t.throws(
+    () => {
+      generateMockData({ schema: demoSchema, complexity: invalidComplexity });
+    },
+    { instanceOf: Error }
+  );
+
+  t.is(
+    error.message,
+    `Invalid complexity provided(${invalidComplexity}). Allowed values are 'big', 'standard', 'small', or an integer`
+  );
 });

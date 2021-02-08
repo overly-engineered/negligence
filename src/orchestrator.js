@@ -30,10 +30,12 @@ class _Orchestrator {
     this.results = [];
     this.runs = new Set();
     this.iterator;
-    this.startTime = Date.now();
+    this.startTime;
     this.runningInNode = typeof process === "object";
     this.progress;
+    this.logging = false;
   }
+
   begin() {
     if (this.runningInNode) {
       this.progress = new ProgressBar("Benchmarking functions: :current out of :total. :percent", {
@@ -41,16 +43,24 @@ class _Orchestrator {
         complete: "#"
       });
     }
+    this.startTime = Date.now();
     this.iterator = this.runs[Symbol.iterator]();
     this._completeRun();
   }
-  addRun(name, fn, options) {
-    if (!this.runs.has(name)) {
-      this.runs.add({ name, fn, options });
+
+  clear() {
+    this.startTime = null;
+    this.runs.clear();
+    console.clear();
+  }
+
+  addRun(params) {
+    if (!this.runs.has(params)) {
+      this.runs.add(params);
     }
   }
 
-  async batchRuns(fn, options) {
+  async _batchRuns(fn, options) {
     let data = {};
     for (let i = 0; i < precisionAmounts.length; i++) {
       const runData = await executor(fn, {
@@ -70,7 +80,7 @@ class _Orchestrator {
     const { value, done } = this.iterator.next();
     if (!done) {
       const { name, fn, options } = value;
-      const results = await this.batchRuns(fn, options);
+      const results = await this._batchRuns(fn, options);
       if (this.runningInNode) {
         this.progress.tick({ token1: `Current testing ${name}` });
       }
@@ -78,11 +88,11 @@ class _Orchestrator {
       this.results.push({ name, ...analysis });
       this._completeRun();
     } else {
-      this.finish();
+      this._finish();
     }
   }
 
-  formatResultsTable(results) {
+  _formatResultsTable(results) {
     return results.map(row => {
       const color = (() => {
         if (row.percentageIncrease < 100) {
@@ -105,11 +115,10 @@ class _Orchestrator {
     });
   }
 
-  finish() {
+  _finish() {
     const endTime = Date.now();
-    // Do something with these results
-    if (this.runningInNode) {
-      const formattedResults = this.formatResultsTable(this.results);
+    if (this.runningInNode && this.logging) {
+      const formattedResults = this._formatResultsTable(this.results);
       const table = new Table({
         head: [
           colors.white.bold("Benchname"),

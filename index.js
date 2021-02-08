@@ -15,7 +15,7 @@ const quickSort = list => {
 };
 
 const benchmark = async (name, fn, options = {}) => {
-  orchestrator.addRun(name, fn, options);
+  orchestrator.addRun({name, fn, options});
 };
 
 benchmark("Constant O(1)", data => data[data.length - 1], { schema: [INT] });

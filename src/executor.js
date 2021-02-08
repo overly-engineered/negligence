@@ -1,4 +1,4 @@
-// Precision
+import generateMockData from "./data.js";
 // Takes in the string and constructs it into a function
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 const executeAsync = async (fn, args) => {
@@ -17,64 +17,44 @@ const executeAsync = async (fn, args) => {
 };
 
 const execute = async (fn, args) => {
-    let returnValue;
+  let returnValue;
+  try {
+    returnValue = await fn(args);
+  } catch (e) {
+    throw new Error("Error running provided function", e);
+  }
+  return returnValue;
+};
+
+const executor = async (fn, { complexity, schema, arrayAmount, isNode } = {}) => {
+  let timings = {};
+  const envExecutor = typeof fn === "string" ? executeAsync : execute;
+  for (let i = 0; i < arrayAmount; i++) {
+    if (!timings[complexity]) {
+      timings[complexity] = [];
+    }
+    const data = generateMockData({ schema, complexity });
+    let hrStart;
+    if (isNode) {
+      hrStart = process.hrtime();
+      timings[complexity].push({ start: hrStart });
+    } else {
+      timings[complexity].push({ start: performance.now() });
+    }
     try {
-      returnValue = await fn(args);
+      await envExecutor(fn, data);
     } catch (e) {
       throw new Error("Error running provided function", e);
     }
-    return returnValue;
-};
-
-const PRECISE = "precise";
-const STANDARD = "standard";
-const QUICK = "quick";
-const precisionAmounts = {
-  [PRECISE]: 10_000,
-  [STANDARD]: 1_000,
-  [QUICK]: 100
-};
-
-import generateMockData from "./data.js";
-
-const executor = async (fn, { precision = STANDARD, complexity, schema } = {}) => {
-  const arrayAmount = (() => {
-    const e = `Invalid precision provided(${precision}). Allowed values are 'precise', 'standard', 'quick', or an integer`;
-    if (typeof precision === "object") {
-      throw new Error(e);
-    } else if (Number.isInteger(precision)) {
-      return precision;
-    } else if (precisionAmounts[precision]) {
-      return precisionAmounts[precision];
+    if (isNode) {
+      timings[complexity][i].end = process.hrtime(hrStart);
+    } else {
+      timings[complexity][i].end = performance.now();
     }
-    throw new Error(e);
-  })();
-  let timings = {};
-  let abort = false;
-  const executions = [];
-  const envExecutor = typeof fn === "string" ? executeAsync : execute;
-  for (let i = 0; i < arrayAmount; i++) {
-    if (abort) continue;
-    const data = generateMockData({ schema, complexity });
-    timings[i] = { start: Date.now() };
-    const run = envExecutor(fn, data)
-      .then(d => {
-        timings[i].end = Date.now();
-        return d;
-      })
-      .catch(e => {
-        abort = true;
-        throw e;
-      });
-    executions.push(run);
+    if (i === arrayAmount - 1) {
+      return timings;
+    }
   }
-  return Promise.all(executions)
-    .then(data => {
-      return { data, results: timings };
-    })
-    .catch(e => {
-      throw e;
-    });
 };
 
 export default executor;

@@ -7,8 +7,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "solo": "node ./index.js",
-    "test": "ava --verbose",
+    "solo": "node ./index.js --max_old_space_size=4096",
+    "test": "NODE_ENV='test' ava --verbose",
     "test:watch": "ava --verbose --watch",
     "lint": "eslint src",
     "dist": "rollup index.js --file ./dist/bundle.js --format umd --name 'myBundle'"
@@ -19,7 +19,11 @@
     "eslint": "7.19.0",
     "rollup": "2.38.4"
   },
-  "dependencies": {},
+  "dependencies": {
+    "cli-table": "0.3.4",
+    "colors": "^1.4.0",
+    "progress": "^2.0.3"
+  },
   "directories": {
     "test": "test"
   },

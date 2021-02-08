@@ -31,7 +31,7 @@ benchmark(
 );
 
 (async () => {
-  const data = await benchmark(
+  await benchmark(
     "Quadratic O(N2)",
     `async data => {
       for(let i = 0; i < data.length; i++) {

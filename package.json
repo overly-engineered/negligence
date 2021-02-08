@@ -10,7 +10,7 @@
     "solo": "node ./index.js --max_old_space_size=4096",
     "test": "NODE_ENV='test' ava --serial --verbose",
     "test:watch": "ava --verbose --watch",
-    "lint": "eslint src",
+    "lint": "eslint .",
     "dist": "rollup index.js --file ./dist/bundle.js --format umd --name 'myBundle'"
   },
   "devDependencies": {

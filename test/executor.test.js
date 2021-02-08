@@ -16,7 +16,7 @@ test("Function -> Provide a valid function", async t => {
 });
 
 test("Function -> Assert data passed into provided function", async t => {
-  const res = await executor(arr => {
+  await executor(arr => {
     t.deepEqual(arr, options.schema());
     return sortFn(arr);
   }, options);

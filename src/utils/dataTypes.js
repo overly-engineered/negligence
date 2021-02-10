@@ -4,4 +4,4 @@ const FLOAT = "FLOAT";
 const BOOLEAN = "BOOLEAN";
 const BIGINT = "BIGINT";
 
-export {STRING, INT, FLOAT, BOOLEAN, BIGINT};
+module.exports = {STRING, INT, FLOAT, BOOLEAN, BIGINT};

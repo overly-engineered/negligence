@@ -13,7 +13,7 @@ const getDurations = (results, isNode) => {
     amountDurations.forEach(dur => {
       if (!durations[key]) durations[key] = [];
       if (isNode) {
-        durations[key].push(Math.round(dur.end[1] / 1000));
+        durations[key].push(dur.end[1]);
       } else {
         durations[key].push(dur.end - dur.start);
       }
@@ -37,11 +37,7 @@ const getHighLowAverage = durations => {
           return Math.min(a, b);
         })
       );
-      const average = Math.round(
-        complexityDurations.reduce(function (sum, duration) {
-          return sum + duration;
-        }, 0) / complexityDurations.length
-      );
+      const average = complexityDurations.sort((a, b) => a - b)[Math.ceil((complexityDurations.length -1) / 2)];
 
       return (durationsWithStats[key] = { max, min, average: Math.round(average) });
     } else {
@@ -59,8 +55,8 @@ const getPercentageIncrease = durations => {
       return one - two;
     })
     .map(key => durations[key].average);
-  const lowValue = sortedValues[0];
-  const highVlaue = sortedValues[sortedValues.length - 1];
+  const lowValue = sortedValues[0] / 1000;
+  const highVlaue = sortedValues[sortedValues.length - 1] / 1000;
   return { ...durations, percentageIncrease: Math.round(((highVlaue - lowValue) / lowValue) * 100) };
 };
 
@@ -71,6 +67,7 @@ const analyse = (results, isNode) => {
 
 const analyser = (results, isNode) => {
   if (!results) {
+    console.error(results);
     throw new Error("Analyser missing param");
   }
   if (typeof results !== "object" || Array.isArray(results)) {
@@ -79,4 +76,4 @@ const analyser = (results, isNode) => {
   return analyse(results, isNode);
 };
 
-export default analyser;
+module.exports = analyser;

@@ -1,34 +1,40 @@
-import generateMockData from "./data.js";
+const { generateMockData } = require("./data.js");
 // Takes in the string and constructs it into a function
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-const executeAsync = async (fn, args) => {
-  return new AsyncFunction(
-    "args",
+const executeString = async ({ fn, data }) => {
+  let result = await new AsyncFunction(
+    "data",
     `"use strict";
       let fn = ${fn};
       let returnValue;
-      try {
-        returnValue = await fn(args);
-      } catch (e) {
-        throw new Error("Error running provided function", e);
-      }
+      returnValue = await fn(data);
     return returnValue;`
-  )(args);
+  )(data);
+  return result;
 };
 
-const execute = async (fn, args) => {
-  let returnValue;
-  try {
-    returnValue = await fn(args);
-  } catch (e) {
-    throw new Error("Error running provided function", e);
-  }
-  return returnValue;
+/* For ultimate security we should exec this in a vm. I think its ok though, As the original code should still have the context of the vm the file was parsed in. */
+
+// const exec = async ({ fn, data }) => {
+//   let script = new vm.Script(`(${fn})(data)`);
+//   const context = vm.createContext({
+//     data,
+//     console: {
+//       log: (...args) => {
+//         console.log(...args);
+//       }
+//     }
+//   });
+//   script.runInNewContext(context)
+// };
+
+const execute = async ({ fn, data }) => {
+  return await fn(data);
 };
 
 const executor = async (fn, { complexity, schema, arrayAmount, isNode } = {}) => {
   let timings = {};
-  const envExecutor = typeof fn === "string" ? executeAsync : execute;
+  const envExecutor = typeof fn === "string" ? executeString : execute;
   for (let i = 0; i < arrayAmount; i++) {
     if (!timings[complexity]) {
       timings[complexity] = [];
@@ -41,11 +47,7 @@ const executor = async (fn, { complexity, schema, arrayAmount, isNode } = {}) =>
     } else {
       timings[complexity].push({ start: performance.now() });
     }
-    try {
-      await envExecutor(fn, data);
-    } catch (e) {
-      throw new Error("Error running provided function", e);
-    }
+    await envExecutor({ fn, data, isNode });
     if (isNode) {
       timings[complexity][i].end = process.hrtime(hrStart);
     } else {
@@ -57,4 +59,4 @@ const executor = async (fn, { complexity, schema, arrayAmount, isNode } = {}) =>
   }
 };
 
-export default executor;
+module.exports = executor;

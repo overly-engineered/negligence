@@ -1,6 +1,6 @@
-import test from "ava";
+const test = require("ava");
 
-import executor from "../src/executor.js";
+const executor = require("../src/executor.js");
 
 const sortFn = arr => arr.sort((a, b) => a - b);
 
@@ -29,7 +29,7 @@ test("Function -> Provide a function that throws error", async t => {
     },
     { instanceOf: Error }
   );
-  t.is(error.message, "Error running provided function");
+  t.is(error.message, "Cannot read property 'b' of undefined");
 });
 
 test("String -> Provide a valid string function ", async t => {
@@ -55,5 +55,5 @@ test("String -> Provide garbage", async t => {
     },
     { instanceOf: Error }
   );
-  t.is(error.message, "Error running provided function");
+  t.is(error.message, "Unexpected token 'this'");
 });

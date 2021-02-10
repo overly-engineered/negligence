@@ -1,6 +1,6 @@
-import test from "ava";
-import generateMockData, { BIG, SMALL, STANDARD, complexityCounts } from "./../src/data.js";
-import { STRING, INT, FLOAT, BOOLEAN, BIGINT } from "../src/utils/dataTypes.js";
+const test = require( "ava");
+const { generateMockData, BIG, SMALL, STANDARD, complexityCounts } = require("../src/data.js");
+const { STRING, INT, FLOAT, BOOLEAN, BIGINT } = require("../src/utils/dataTypes.js");
 
 const intSchema = [INT];
 

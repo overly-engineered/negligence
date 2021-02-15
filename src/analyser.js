@@ -1,79 +1,132 @@
 // Looks at the results and does stuff with it
+const NANO_SECONDS_IN_A_SECOND = 1000000000;
 
-const getDurations = (results, isNode) => {
-  const durations = {};
-  Object.keys(results).forEach(key => {
-    const amountDurations = results[key];
-    if (!Array.isArray(amountDurations)) {
+const getDurations = (data, isNode) => {
+  const amountDurations = data;
+  let results = {};
+  if (!amountDurations) {
+    return data;
+  }
+  Object.keys(amountDurations).forEach(key => {
+    const durations = amountDurations[key];
+    if (!Array.isArray(durations)) {
       throw new Error("Run failed to produce array of results");
     }
-    if (amountDurations.length === 0) {
+    if (durations.length === 0) {
       throw new Error("No results to analyse");
     }
-    amountDurations.forEach(dur => {
-      if (!durations[key]) durations[key] = [];
+
+    let val = [];
+    results[key] = durations.forEach(dur => {
       if (isNode) {
-        durations[key].push(dur.end[1]);
+        val.push(dur);
       } else {
-        durations[key].push(dur.end - dur.start);
+        val.push(dur.end - dur.start);
       }
     });
+    results[key] = val;
   });
-  return durations;
+  return results;
 };
 
-const getHighLowAverage = durations => {
-  let durationsWithStats = {};
-  Object.keys(durations).forEach(key => {
-    const complexityDurations = durations[key];
-    if (complexityDurations.length) {
-      const max = Math.round(
-        complexityDurations.reduce(function (a, b) {
-          return Math.max(a, b);
-        })
-      );
-      const min = Math.round(
-        complexityDurations.reduce(function (a, b) {
-          return Math.min(a, b);
-        })
-      );
-      const average = complexityDurations.sort((a, b) => a - b)[Math.ceil((complexityDurations.length -1) / 2)];
-
-      return (durationsWithStats[key] = { max, min, average: Math.round(average) });
+const processHRTMinMax = (array, findMax) => {
+  return array.reduce(function (a, b) {
+    if (findMax) {
+      if (a[0] > b[0]) {
+        return a;
+      } else if (b[0] > a[0]) {
+        return b;
+      } else {
+        if (Math.max(a[1], b[1])) {
+          return a;
+        } else {
+          return b;
+        }
+      }
     } else {
-      throw new Error("No results to analyse");
+      if (a[0] > b[0]) {
+        return b;
+      } else if (b[0] > a[0]) {
+        return a;
+      } else {
+        if (Math.max(a[1], b[1])) {
+          return b;
+        } else {
+          return a;
+        }
+      }
     }
   });
-  return durationsWithStats;
 };
 
-const getPercentageIncrease = durations => {
-  const sortedValues = Object.keys(durations)
-    .sort((a, b) => {
-      const one = durations[a].average;
-      const two = durations[b].average;
-      return one - two;
-    })
-    .map(key => durations[key].average);
-  const lowValue = sortedValues[0] / 1000;
-  const highVlaue = sortedValues[sortedValues.length - 1] / 1000;
-  return { ...durations, percentageIncrease: Math.round(((highVlaue - lowValue) / lowValue) * 100) };
+const processHRTMedian = array => {
+  const average = array.sort((a, b) => {
+    if (a[0] > b[0]) {
+      return 1;
+    } else if (a[0] < b[0]) {
+      return -1;
+    } else {
+      return a[1] - b[1];
+    }
+  });
+  return average[Math.round(Math.ceil(average.length - 1) / 2)];
 };
 
-const analyse = (results, isNode) => {
-  const resultsWithDurations = getDurations(results, isNode);
-  return getPercentageIncrease(getHighLowAverage(resultsWithDurations));
+const getHighLowAverage = (runs, isNode) => {
+  let stats = {};
+  if (!runs) {
+    return;
+  }
+  const iterations = Object.keys(runs);
+  iterations.forEach(key => {
+    if (isNode) {
+      const max = processHRTMinMax(runs[key], true);
+      const min = processHRTMinMax(runs[key]);
+      const average = processHRTMedian(runs[key]);
+      stats[key] = { max, min, average };
+    } else {
+    }
+  });
+  const percentageIncrease = getPercentageIncrease(
+    stats[iterations[iterations.length - 1]].average,
+    stats[iterations[0]].average,
+    isNode
+  );
+
+  return {...stats, percentageIncrease};
 };
 
-const analyser = (results, isNode) => {
+const getPercentageIncrease = (max, min, isNode) => {
+  // console.log(max, min);
+  if (isNode) {
+    const maxNanos = max[0] * NANO_SECONDS_IN_A_SECOND + max[1];
+    const minNanos = min[0] * NANO_SECONDS_IN_A_SECOND + min[1];
+    return Math.round(((maxNanos - minNanos) / minNanos) * 100);
+  } else {
+  }
+};
+
+const analyse = (allResults, isNode) => {
+  const results = allResults.filter(r => r.data);
+  const failures = allResults.filter(r => r.error);
+  const resultsWithDurations = results.map(res => ({ ...res, results: getDurations(res.data, isNode) }));
+  const resultsWithAverages = resultsWithDurations.map(res => ({
+    ...res,
+    stats: getHighLowAverage(res.results, isNode)
+  }));
+
+  return [...resultsWithAverages, ...failures];
+};
+
+const analyser = (results, isNode, logger) => {
   if (!results) {
     console.error(results);
     throw new Error("Analyser missing param");
   }
-  if (typeof results !== "object" || Array.isArray(results)) {
+  if (typeof results !== "object" || !Array.isArray(results)) {
     throw new Error("Analyser param1 should be an array with objects of shape {[key]: {}}");
   }
-  return analyse(results, isNode);
+  return analyse(results, isNode, logger);
 };
 
 module.exports = analyser;

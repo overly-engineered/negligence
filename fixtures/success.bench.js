@@ -1,5 +1,5 @@
 /* global benchmark */
-import { INT } from "./../src/utils/dataTypes.js";
+import { INT } from "../src/utils/dataTypes.js";
 
 benchmark("Constant O(1)", data => data[0], { schema: [INT] });
 
@@ -7,7 +7,7 @@ benchmark(
   "Linear map O(n)",
   data => {
     data.map(d => {
-      d.b.c;
+      d;
     });
   },
   { schema: [INT] }

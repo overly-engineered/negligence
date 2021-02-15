@@ -57,13 +57,15 @@ const readFile = async (string, benchManager) => {
   }
 };
 
-const scanForFiles = async (benchManager, { exclude } = {}) => {
+const scanForFiles = async (benchManager, logger, { exclude } = {}) => {
   const exclude_string = Array.isArray(exclude) ? `!(${exclude.join("|")})` : `!(${exclude})`;
   return new Promise((resolve, reject) => {
     glob(`**/${exclude_string}/*.bench.js`, {}, async function (err, files) {
+      const progress = logger.startTask(`Compiling files`, files.length);
       if (err) reject(err);
       const arr = [];
       for (const file of files) {
+        progress.tick();
         await readFile(file, benchManager);
         arr.push(file);
       }

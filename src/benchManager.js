@@ -1,10 +1,11 @@
 const executor = require("./executor.js");
-
+const pluralize = require("pluralize");
 const precisionAmounts = [200, 100];
 
 class BenchManager {
-  constructor({ isNode }) {
+  constructor({ isNode, logger }) {
     this.isNode = isNode;
+    this.logger = logger;
     this.runs = new Set();
   }
 
@@ -51,10 +52,12 @@ class BenchManager {
   }
 
   async _process() {
+    const progress = this.logger.startTask(`Executing ${pluralize("function", this.runs.size, true)}`, this.runs.size);
     let array;
     for await (let process of this._processGenerator()) {
       if (!array) array = [];
       const pro = await process;
+      progress.tick();
       array.push(pro);
     }
     return array;

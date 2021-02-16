@@ -3,7 +3,7 @@ const pluralize = require("pluralize");
 const precisionAmounts = [200, 100];
 
 class BenchManager {
-  constructor({ isNode, logger }) {
+  constructor({ isNode = true, logger }) {
     this.isNode = isNode;
     this.logger = logger;
     this.runs = new Set();
@@ -38,9 +38,7 @@ class BenchManager {
    * @param {*} options
    */
   addBench({ name, fn, options = {} }) {
-    if (!this.runs.has({ name, fn, options })) {
-      this.runs.add({ name, fn, options });
-    }
+    this.runs.add({ name, fn, options });
   }
 
   async *_processGenerator() {

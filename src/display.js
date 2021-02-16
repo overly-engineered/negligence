@@ -58,9 +58,8 @@ class _Display {
       const group = groups[key];
       this.printFileResult(key, group);
     });
-
-    this.print("\n======================= SUMMARY =======================\n");
     if (this.globalErrors.length) {
+      this.print("\n======================= ERROR SUMMARY =======================\n");
       this.globalErrors
         .sort((a, b) => {
           if (a.error) {
@@ -87,7 +86,7 @@ class _Display {
                   this.decreaseIndent();
                 } else {
                   this.print("Bench " + name + " is showing signs of poor performance");
-                  this.print(`An media increase of ${stats.percentageIncrease}% when doubling array length\n`);
+                  this.print(`A median increase of ${stats.percentageIncrease}% when doubling array length\n`);
                 }
               });
             this.decreaseIndent();
@@ -133,7 +132,9 @@ class _Display {
     const groupErrors = group.filter(fnResults => {
       return fnResults.error || fnResults.stats.percentageIncrease > 100;
     });
-    this.globalErrors.push({ key, error: groupErrors });
+    if (groupErrors.length) {
+      this.globalErrors.push({ key, error: groupErrors });
+    }
     if (this.config.verbosity > 1) {
       if (groupErrors.length === group.length) {
         this.printFailure(key);

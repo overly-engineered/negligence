@@ -1,27 +1,39 @@
 const test = require("ava");
 const analyser = require("../src/analyser.js");
 
-const mockResults = {
-  1: [
-    { start: 0, end: 1 },
-    { start: 0, end: 1 }
-  ], // 1 milli duration
-  2: [
-    { start: 0, end: 5 },
-    { start: 0, end: 5 }
-  ], // 5 milli duration
-  3: [
-    { start: 0, end: 3 },
-    { start: 0, end: 4 },
-    { start: 0, end: 5 },
-  ]
-};
+const mockResults = [
+  {
+    schema: ["INT"],
+    fileName: "test.bench.js",
+    name: "Test bench",
+    data: { 100: [[1, 0]], 200: [[2, 0]] }
+  }
+];
+
+const badResultsString = [
+  {
+    schema: ["INT"],
+    fileName: "test.bench.js",
+    name: "Test bench",
+    data: { 100: "string", 200: "string" }
+  }
+];
+
+const emptyResultsString = [
+  {
+    schema: ["INT"],
+    fileName: "test.bench.js",
+    name: "Test bench",
+    data: { 100: [], 200: [] }
+  }
+];
 
 test("Returns correct high, low, average", t => {
-  const results = analyser(mockResults);
-  t.like(results["1"], { max: 1, min: 1, average: 1 });
-  t.like(results["2"], { max: 5, min: 5, average: 5 });
-  t.like(results["3"], { max: 5, min: 3, average: 4 });
+  const results = analyser(mockResults, true);
+  const stats = results[0].stats;
+  t.like(stats["100"], { max: [1, 0], min: [1, 0], average: [1, 0] });
+  t.like(stats["200"], { max: [2, 0], min: [2, 0], average: [2, 0] });
+  t.is(stats.percentageIncrease, 100);
 });
 
 test("throws if not provided any params", t => {
@@ -49,7 +61,7 @@ test("throws if not provided a non object", t => {
 test("throws providing a string results property", t => {
   const error = t.throws(
     () => {
-      analyser({ results: "ABC" });
+      analyser(badResultsString);
     },
     { instanceOf: Error }
   );
@@ -57,21 +69,10 @@ test("throws providing a string results property", t => {
   t.is(error.message, "Run failed to produce array of results");
 });
 
-test("throws Analyser missing param an array results property", t => {
-  const error = t.throws(
-    () => {
-      analyser([]);
-    },
-    { instanceOf: Error }
-  );
-
-  t.is(error.message, "Analyser param1 should be an array with objects of shape {[key]: {}}");
-});
-
 test("No results to analyse", t => {
   const error = t.throws(
     () => {
-      analyser({ s: [] });
+      analyser(emptyResultsString);
     },
     { instanceOf: Error }
   );

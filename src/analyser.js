@@ -85,6 +85,18 @@ const getHighLowAverage = (runs, isNode) => {
       const average = processHRTMedian(runs[key]);
       stats[key] = { max, min, average };
     } else {
+      const max = Math.round(
+        runs[key].reduce(function (a, b) {
+          return Math.max(a, b);
+        })
+      );
+      const min = Math.round(
+        runs[key].reduce(function (a, b) {
+          return Math.min(a, b);
+        })
+      );
+      const average = runs[key].sort((a, b) => a - b)[Math.ceil((runs[key].length - 1) / 2)];
+      stats[key] = { max, min, average };
     }
   });
   const percentageIncrease = getPercentageIncrease(
@@ -93,16 +105,16 @@ const getHighLowAverage = (runs, isNode) => {
     isNode
   );
 
-  return {...stats, percentageIncrease};
+  return { ...stats, percentageIncrease };
 };
 
 const getPercentageIncrease = (max, min, isNode) => {
-  // console.log(max, min);
   if (isNode) {
     const maxNanos = max[0] * NANO_SECONDS_IN_A_SECOND + max[1];
     const minNanos = min[0] * NANO_SECONDS_IN_A_SECOND + min[1];
     return Math.round(((maxNanos - minNanos) / minNanos) * 100);
   } else {
+    return Math.round(((max - min) / min) * 100);
   }
 };
 
@@ -120,7 +132,6 @@ const analyse = (allResults, isNode) => {
 
 const analyser = (results, isNode, logger) => {
   if (!results) {
-    console.error(results);
     throw new Error("Analyser missing param");
   }
   if (typeof results !== "object" || !Array.isArray(results)) {

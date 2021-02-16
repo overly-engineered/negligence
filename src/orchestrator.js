@@ -22,6 +22,8 @@ class _Orchestrator {
     const analysedResults = analyser(results, this.runningInNode, this.logger);
     if (this.runningInNode) {
       this.logger.printResults(analysedResults);
+    } else {
+      console.log(analysedResults);
     }
   }
 

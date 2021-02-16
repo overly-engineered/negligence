@@ -18,7 +18,7 @@ const readFile = async (string, benchManager) => {
   const babelify = babel.transform(data, {
     presets: [
       [
-        "@babel/preset-env",
+        require.resolve("@babel/preset-env"),
         {
           useBuiltIns: "entry",
           corejs: "2.6.12"
@@ -26,13 +26,22 @@ const readFile = async (string, benchManager) => {
       ]
     ],
     plugins: [
-      "@babel/plugin-transform-async-to-generator",
+      require.resolve("@babel/plugin-transform-async-to-generator"),
       [
         require.resolve("babel-plugin-module-resolver"),
         {
           resolvePath(sourcePath) {
-            const res = path.relative(process.cwd(), path.resolve(`${folder}/` + sourcePath));
-            return path.resolve(res);
+            /**
+             * Module resolution. Seems a bit brittle for flag of what is relative and what is a dependency
+             */
+            const hasSlashes = sourcePath.match(/^(\/|\.)/); // check for strings starting with slashes or dots
+            if (hasSlashes) {
+              const res = path.relative(process.cwd(), path.resolve(`${folder}/${sourcePath}`));
+              return path.resolve(res);
+            } else {
+              const res = path.relative(process.cwd(), path.resolve(`node_modules/${sourcePath}`))
+              return path.resolve(res);
+            }
           }
         }
       ]
@@ -58,9 +67,10 @@ const readFile = async (string, benchManager) => {
 };
 
 const scanForFiles = async (benchManager, logger, { exclude } = {}) => {
-  const exclude_string = Array.isArray(exclude) ? `!(${exclude.join("|")})` : `!(${exclude})`;
+  const exclude_string = Array.isArray(exclude) ? `!(${exclude.join("|")}|node_modules)` : `!(${exclude}|node_modules)`;
   return new Promise((resolve, reject) => {
-    glob(`**/${exclude_string}/*.bench.js`, {}, async function (err, files) {
+    const currentLocation = process.cwd();
+    glob(`${currentLocation}/{**${exclude_string}/,*}*.bench.js`, {}, async function (err, files) {
       const progress = logger.startTask(`Compiling files`, files.length);
       if (err) reject(err);
       const arr = [];

@@ -50,7 +50,7 @@ const executor = async (fn, { complexity, schema, arrayAmount, isNode } = {}) =>
     if (isNode) {
       timings[complexity][i] = process.hrtime(hrStart);
     } else {
-      timings[complexity][i].end = Date.now();
+      timings[complexity][i].end = performance.now();
     }
     if (i === arrayAmount - 1) {
       return timings;

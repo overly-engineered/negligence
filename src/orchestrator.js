@@ -3,6 +3,11 @@ const analyser = require("./analyser.js");
 const scanForFiles = require("./finder.js");
 const Display = require("./display.js");
 
+/**
+ * Orchestrator class.
+ *
+ * Responsible for running the process from finding files to printing results.
+ */
 class _Orchestrator {
   constructor(config = {}) {
     this.results = {};
@@ -16,6 +21,9 @@ class _Orchestrator {
     this.BenchManager = new BenchManager({ isNode: this.runningInNode, logger: this.logger });
   }
 
+  /**
+   * Start the whole process
+   */
   async run() {
     await scanForFiles(this.BenchManager, this.logger, { exclude: ["a", "b"] });
     const results = await this.BenchManager.execute();
@@ -25,17 +33,6 @@ class _Orchestrator {
     } else {
       console.log(analysedResults);
     }
-  }
-
-  async display() {}
-
-  progressTick(params) {
-    this.progress.tick(params);
-  }
-
-  clear() {
-    this.startTime = null;
-    console.clear();
   }
 }
 

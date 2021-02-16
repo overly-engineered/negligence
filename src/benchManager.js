@@ -1,7 +1,11 @@
 const executor = require("./executor.js");
 const pluralize = require("pluralize");
+
 const precisionAmounts = [200, 100];
 
+/**
+ * Handles the loading and storing of all benchmarks we find
+ */
 class BenchManager {
   constructor({ isNode = true, logger }) {
     this.isNode = isNode;
@@ -11,20 +15,26 @@ class BenchManager {
 
   /**
    *
-   * Our exported function
+   * Our exported function which people
    *
-   * @param {*} name
-   * @param {*} fn
-   * @param {*} options
+   * @param {Object} name Bench name
+   * @param {Function} fn Bench function
+   * @param {Object} options overwride options for this specific bench
    */
   benchmark(name, fn, options = {}) {
     this.addBench({ name, fn, options });
   }
 
+  /**
+   * Function to start the execution of all benches
+   */
   async execute() {
     return await this._process();
   }
 
+  /**
+   * Clear all our benches
+   */
   clear() {
     this.runs.clear();
   }
@@ -33,14 +43,17 @@ class BenchManager {
    *
    * Our exported function
    *
-   * @param {*} name
-   * @param {*} fn
-   * @param {*} options
+   * @param {String} name
+   * @param {Function} fn
+   * @param {Object} options
    */
   addBench({ name, fn, options = {} }) {
     this.runs.add({ name, fn, options });
   }
 
+  /**
+   * Async generator for runnning our benchmarks
+   */
   async *_processGenerator() {
     for (const run of this.runs) {
       const { fn, name, options } = run;
@@ -49,6 +62,9 @@ class BenchManager {
     }
   }
 
+  /**
+   * Main process function which runs all our benchmarks and collects the results.
+   */
   async _process() {
     const progress = this.logger.startTask(`Executing ${pluralize("function", this.runs.size, true)}`, this.runs.size);
     let array;
@@ -61,6 +77,13 @@ class BenchManager {
     return array;
   }
 
+  /**
+   * Run an individual benchmark
+   *
+   * @param {Function} fn function to be run
+   * @param {String} name the name of the function to be run
+   * @param {Object} options overwrite options for this benchmark
+   */
   async _runBenchmark(fn, name, options) {
     let data = {};
     for (let i = 0; i < precisionAmounts.length; i++) {
@@ -71,12 +94,13 @@ class BenchManager {
           arrayAmount: 1000,
           complexity: precisionAmounts[i],
           isNode: this.isNode,
-          name
+          name,
         });
         data = { ...data, ...runData };
       } catch (e) {
         return { error: e };
       }
+      // If we have run all the iterations we should return the values
       if (i === precisionAmounts.length - 1) {
         return { data };
       }

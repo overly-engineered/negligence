@@ -6,11 +6,16 @@ const babel = require("@babel/core");
 const _regenerator = require("@babel/runtime/regenerator");
 var glob = require("glob");
 
-const readFile = async (string, benchManager) => {
-  const folder = path.resolve(string.replace(/\/\w*\.bench.js$/, ""));
+/**
+ * Reads a file from a string passed in.
+ * @param {String} fileLocation location of the file found
+ * @param {Objbect} benchManager Benchmanager class
+ */
+const readFile = async (fileLocation, benchManager) => {
+  const folder = path.resolve(fileLocation.replace(/\/\w*\.bench.js$/, ""));
   let data;
   try {
-    data = await fs.readFileSync(string, "utf8");
+    data = await fs.readFileSync(fileLocation, "utf8");
   } catch (e) {
     console.log("Error:", e.stack);
   }
@@ -50,14 +55,14 @@ const readFile = async (string, benchManager) => {
   });
   let script = new vm.Script(babelify.code);
   const context = vm.createContext({
-    benchmark: (name, fn, options) => benchManager.benchmark(name, fn, { ...options, fileName: string }),
+    benchmark: (name, fn, options) => benchManager.benchmark(name, fn, { ...options, fileName: fileLocation }),
     require,
     regeneratorRuntime: _regenerator,
     console: {
       log: (...args) => {
         console.log(...args);
-      }
-    }
+      },
+    },
   });
   try {
     script.runInNewContext(context, { displayErrors: true });
@@ -66,6 +71,12 @@ const readFile = async (string, benchManager) => {
   }
 };
 
+/**
+ * Seearches over files in directories.
+ * @param {Object} benchManager benchmaanger class
+ * @param {Obbject} logger Logging class
+ * @param {Object} options overrides passed in
+ */
 const scanForFiles = async (benchManager, logger, { exclude } = {}) => {
   const exclude_string = Array.isArray(exclude) ? `!(${exclude.join("|")}|node_modules)` : `!(${exclude}|node_modules)`;
   return new Promise((resolve, reject) => {

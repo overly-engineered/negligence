@@ -17,6 +17,12 @@ const { typeMap: dataTypeGenerators } = require("./utils/dataTypeGenerators.js")
 
 const DEFAULT_SCHEMA = INT;
 
+/**
+ * Generate a data object based of a schema
+ * @param {Object} param0
+ * @param {Object} param0.schema
+ * @param {Number} param0.complexity
+ */
 const dataGenerator = ({ schema, complexity }) => {
   const getGenerator = type => {
     return dataTypeGenerators[type]();
@@ -60,6 +66,13 @@ const dataGenerator = ({ schema, complexity }) => {
   }
 };
 
+/**
+ * Start generating our data either as an array or an object.
+ *
+ * @param {Object} param0
+ * @param {Object} param0.schema Data schema
+ * @param {Number} param0.complexity How complex should the data be.
+ */
 const generateMockData = ({ schema = DEFAULT_SCHEMA, complexity = DEFAULT_COUNT } = {}) => {
   const arrayAmount = (() => {
     const e = `Invalid complexity provided(${complexity}). Allowed values are 'big', 'standard', 'small', or an integer`;

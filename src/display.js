@@ -1,8 +1,6 @@
 /* eslint-disable */
 const colors = require("colors/safe.js");
 const Multiprogress = require("multi-progress");
-const pluralize = require("pluralize");
-// console.log(`Found ${pluralize("files", files.length, true)}!`);
 
 const groupByFile = xs => {
   return xs.reduce(function (rv, x) {
@@ -17,14 +15,16 @@ const TICK = "✔";
 const CROSS = "✖";
 const QUESTION = "?";
 
-const VERBOSE = 3;
-const MINMIAL = 2;
+const VERBOSE = 2;
 const WARNONLY = 1;
 
 const DEFAULT_CONFIG = {
   verbosity: VERBOSE
 };
 
+/**
+ * Display class
+ */
 class _Display {
   constructor(params) {
     this.task;
@@ -36,20 +36,34 @@ class _Display {
     this.setConfig = this.setConfig.bind(this);
   }
 
+  /**
+   * Sets the config passed in
+   * @param {*} config
+   */
   setConfig(config) {
     this.config = { ...config, ...DEFAULT_CONFIG };
     return this;
   }
 
+  /**
+   * Starts a progress bar and returns it to the requester for ticking
+   * @param {String} string What the task is
+   * @param {Number} total The total amount of tasks we are tracking
+   * @param {Boolean} hideTotal
+   */
   startTask(string, total, hideTotal) {
     return this.ProgressBar.newBar(`${string} [:bar] ${!hideTotal ? ":current of :total" : ""}`, {
       complete: "#",
       incomplete: " ",
       width: 25,
-      total
+      total,
     });
   }
 
+  /**
+   * Print the results
+   * @param {Array} results An array of unordered, ungrouped results.
+   */
   printResults(results) {
     console.log("\n");
     const groups = groupByFile(results);
@@ -96,41 +110,70 @@ class _Display {
     this.print("\nRun with --bail flag to fail fast when a bench fails");
   }
 
+  /**
+   * Increase the log indent
+   */
   increaseIndent() {
     this.padAmount += 2;
   }
 
+  /**
+   * Decrease the log indent
+   */
   decreaseIndent() {
     this.padAmount -= 2;
   }
 
+  /**
+   * Add our padding to the string
+   */
   formatLog(string) {
     return string.padStart(this.padAmount + string.length);
   }
 
+  /**
+   * Standard print statement
+   */
   print(string) {
     console.log(this.formatLog(string));
   }
 
+  /**
+   * Error statment
+   */
   error(string) {
     console.error(this.formatLog(string));
   }
 
+  /**
+   * Failure statment
+   */
   printFailure(string, fn = colors.red) {
     console.log(fn(this.formatLog(`${CROSS} FAILURE ${string}`)));
   }
 
+  /**
+   * Warning statement
+   */
   printWarning(string, fn = colors.yellow) {
     console.log(fn(this.formatLog(`${QUESTION} ${string}`)));
   }
 
+  /**
+   * Success statement
+   */
   printSuccess(string, fn = colors.green) {
     console.log(fn(this.formatLog(`${TICK} ${string}`)));
   }
 
+  /**
+   * For a given file, print the results of the tests in it.
+   * @param {String} key The filename
+   * @param {Array} group The array of bench results
+   */
   printFileResult(key, group) {
     const groupErrors = group.filter(fnResults => {
-      return fnResults.error || fnResults.stats.percentageIncrease > 100;
+      return fnResults.error || fnResults.stats.percentageIncrease > 150;
     });
     if (groupErrors.length) {
       this.globalErrors.push({ key, error: groupErrors });
@@ -151,6 +194,9 @@ class _Display {
     }
   }
 
+  /**
+   * Format an HRT string to a nice thing
+   */
   createHRTString(hrtArray) {
     const secondValue = `${hrtArray[0]}s`;
     const nanoSecondValue = `${hrtArray[1]}ns`;
@@ -158,6 +204,9 @@ class _Display {
     return hrtArray[0] ? secondValue + " " + nanoSecondValue : nanoSecondValue;
   }
 
+  /**
+   * Based on the bench result what colour should we display
+   */
   getResultColour(value) {
     if (value > 150) {
       return colors.red;
@@ -168,6 +217,9 @@ class _Display {
     }
   }
 
+  /**
+   * Print the result of an individual bench
+   */
   printBenchResult(bench) {
     this.increaseIndent();
     if (bench.error) {

@@ -1,6 +1,11 @@
 // Looks at the results and does stuff with it
 const NANO_SECONDS_IN_A_SECOND = 1000000000;
 
+/**
+ * From start and end times calculate how long a function run took.
+ * @param {*} data
+ * @param {*} isNode
+ */
 const getDurations = (data, isNode) => {
   const amountDurations = data;
   let results = {};
@@ -19,6 +24,7 @@ const getDurations = (data, isNode) => {
     let val = [];
     results[key] = durations.forEach(dur => {
       if (isNode) {
+        // Using hrtime we get the duration by default
         val.push(dur);
       } else {
         val.push(dur.end - dur.start);
@@ -29,6 +35,11 @@ const getDurations = (data, isNode) => {
   return results;
 };
 
+/**
+ * From an arrray get the maximum or minimum HRT
+ * @param {Array} array Array of HRT objects in form [seconds, nanoseconds]
+ * @param {Boolean} findMax Boolean to find the max or min
+ */
 const processHRTMinMax = (array, findMax) => {
   return array.reduce(function (a, b) {
     if (findMax) {
@@ -59,6 +70,10 @@ const processHRTMinMax = (array, findMax) => {
   });
 };
 
+/**
+ * Get the median HRT from an array of HRT objects.
+ * @param {Array} array Array of HRT objects in form [seconds, nanoseconds]
+ */
 const processHRTMedian = array => {
   const average = array.sort((a, b) => {
     if (a[0] > b[0]) {
@@ -72,6 +87,11 @@ const processHRTMedian = array => {
   return average[Math.round(Math.ceil(average.length - 1) / 2)];
 };
 
+/**
+ * Function which will get the high low and average values from an array
+ * @param {Object} runs An object with run iterations as keys {100: []}
+ * @param {Boolean} isNode Whether we are running in node
+ */
 const getHighLowAverage = (runs, isNode) => {
   let stats = {};
   if (!runs) {
@@ -108,6 +128,12 @@ const getHighLowAverage = (runs, isNode) => {
   return { ...stats, percentageIncrease };
 };
 
+/**
+ * Get the percentage increase between two hrt or numbers
+ * @param {Array|Number} max
+ * @param {Array|Number} min
+ * @param {Boolean} isNode
+ */
 const getPercentageIncrease = (max, min, isNode) => {
   if (isNode) {
     const maxNanos = max[0] * NANO_SECONDS_IN_A_SECOND + max[1];
@@ -118,6 +144,11 @@ const getPercentageIncrease = (max, min, isNode) => {
   }
 };
 
+/**
+ * Takes the results from the executer for analysis
+ * @param {Array} allResults
+ * @param {Boolean} isNode
+ */
 const analyse = (allResults, isNode) => {
   const results = allResults.filter(r => r.data);
   const failures = allResults.filter(r => r.error);
@@ -130,14 +161,19 @@ const analyse = (allResults, isNode) => {
   return [...resultsWithAverages, ...failures];
 };
 
-const analyser = (results, isNode, logger) => {
+/**
+ * Checks that the params are in the right format. Then starts the analysis
+ * @param {Array} Results
+ * @param {Boolean} isNode
+ */
+const analyser = (results, isNode) => {
   if (!results) {
     throw new Error("Analyser missing param");
   }
   if (typeof results !== "object" || !Array.isArray(results)) {
     throw new Error("Analyser param1 should be an array with objects of shape {[key]: {}}");
   }
-  return analyse(results, isNode, logger);
+  return analyse(results, isNode);
 };
 
 module.exports = analyser;

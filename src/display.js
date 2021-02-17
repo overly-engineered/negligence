@@ -20,7 +20,7 @@ const WARNONLY = 1;
 const { verbosity, threshold } = require("./utils/defaults");
 const DEFAULT_CONFIG = {
   verbosity,
-  threshold
+  threshold,
 };
 
 /**
@@ -74,7 +74,8 @@ class _Display {
       this.printFileResult(key, group);
     });
     if (this.globalErrors.length) {
-      this.print("\n======================= ERROR SUMMARY =======================\n");
+      this.print(colors.red.bold("\n======================= FAILURE SUMMARY =======================\n"));
+      this.print(`Some of your benchs were over the specified increase threshold of ${this.config.threshold}, or contained errors.`);
       this.globalErrors
         .sort((a, b) => {
           if (a.error) {
@@ -107,8 +108,11 @@ class _Display {
             this.decreaseIndent();
           }
         });
+      this.print("\nRun with --bail flag to fail fast when a bench throws an error");
+    } else {
+      this.print(colors.green.bold("\n======================= SUCCESS =======================\n"));
+      this.print(`None of your benchs were over the specified increase threshold of ${this.config.threshold}.`);
     }
-    this.print("\nRun with --bail flag to fail fast when a bench fails");
   }
 
   /**
@@ -209,9 +213,9 @@ class _Display {
    * Based on the bench result what colour should we display
    */
   getResultColour(value) {
-    if (value > 150) {
+    if (value > this.config.threshold) {
       return colors.red;
-    } else if (value > 100) {
+    } else if (value > this.config.threshold - 25) {
       return colors.yellow;
     } else {
       return colors.green;

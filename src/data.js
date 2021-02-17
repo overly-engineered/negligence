@@ -1,20 +1,7 @@
 // Creates the batches data for execution
 
-const BIG = "big";
-const SMALL = "small";
-const STANDARD = "standard";
-
-const complexityCounts = {
-  [BIG]: 10_000,
-  [STANDARD]: 1_000,
-  [SMALL]: 100
-};
-
-const DEFAULT_COUNT = STANDARD;
-
 const { INT } = require("./utils/dataTypes.js");
 const { typeMap: dataTypeGenerators } = require("./utils/dataTypeGenerators.js");
-
 const DEFAULT_SCHEMA = INT;
 
 /**
@@ -73,15 +60,13 @@ const dataGenerator = ({ schema, complexity }) => {
  * @param {Object} param0.schema Data schema
  * @param {Number} param0.complexity How complex should the data be.
  */
-const generateMockData = ({ schema = DEFAULT_SCHEMA, complexity = DEFAULT_COUNT } = {}) => {
+const generateMockData = ({ schema = DEFAULT_SCHEMA, complexity } = {}) => {
   const arrayAmount = (() => {
-    const e = `Invalid complexity provided(${complexity}). Allowed values are 'big', 'standard', 'small', or an integer`;
+    const e = `Invalid complexity provided(${complexity}). Value should be an integer`;
     if (typeof complexity === "object") {
       throw new Error(e);
     } else if (Number.isInteger(complexity)) {
       return complexity;
-    } else if (complexityCounts[complexity]) {
-      return complexityCounts[complexity];
     }
     throw new Error(e);
   })();
@@ -91,9 +76,5 @@ const generateMockData = ({ schema = DEFAULT_SCHEMA, complexity = DEFAULT_COUNT 
 };
 
 module.exports = {
-  generateMockData,
-  BIG,
-  SMALL,
-  STANDARD,
-  complexityCounts
+  generateMockData
 };

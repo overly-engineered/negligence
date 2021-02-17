@@ -43,13 +43,13 @@ const execute = async ({ fn, data }) => {
  * @param {Function} fn The function provided
  * @param {Number} param1.complexity How many items should be in a data array or sub data array
  * @param {Object} param1.schema The data schema we should generate from
- * @param {Number} param1.arrayAmount How many times should we execute a given function
+ * @param {Number} param1.iterations How many times should we execute a given function
  * @param {Boolean} param1.isNode Are we running inside node or browser
  */
-const executor = async (fn, { complexity, schema, arrayAmount, isNode } = {}) => {
+const executor = async (fn, { complexity, schema, iterations, isNode } = {}) => {
   let timings = {};
   const envExecutor = typeof fn === "string" ? executeString : execute;
-  for (let i = 0; i < arrayAmount; i++) {
+  for (let i = 0; i < iterations; i++) {
     if (!timings[complexity]) {
       timings[complexity] = [];
     }
@@ -66,7 +66,7 @@ const executor = async (fn, { complexity, schema, arrayAmount, isNode } = {}) =>
     } else {
       timings[complexity][i].end = performance.now();
     }
-    if (i === arrayAmount - 1) {
+    if (i === iterations - 1) {
       return timings;
     }
   }

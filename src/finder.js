@@ -11,7 +11,7 @@ var glob = require("glob");
  * @param {String} fileLocation location of the file found
  * @param {Objbect} benchManager Benchmanager class
  */
-const readFile = async (fileLocation, benchManager) => {
+const readFile = async (fileLocation, benchManager, globals) => {
   const folder = path.resolve(fileLocation.replace(/\/\w*\.bench.js$/, ""));
   let data;
   try {
@@ -26,9 +26,9 @@ const readFile = async (fileLocation, benchManager) => {
         require.resolve("@babel/preset-env"),
         {
           useBuiltIns: "entry",
-          corejs: "2.6.12"
-        }
-      ]
+          corejs: "2.6.12",
+        },
+      ],
     ],
     plugins: [
       require.resolve("@babel/plugin-transform-async-to-generator"),
@@ -44,14 +44,14 @@ const readFile = async (fileLocation, benchManager) => {
               const res = path.relative(process.cwd(), path.resolve(`${folder}/${sourcePath}`));
               return path.resolve(res);
             } else {
-              const res = path.relative(process.cwd(), path.resolve(`node_modules/${sourcePath}`))
+              const res = path.relative(process.cwd(), path.resolve(`node_modules/${sourcePath}`));
               return path.resolve(res);
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     ],
-    moduleRoot: __dirname
+    moduleRoot: __dirname,
   });
   let script = new vm.Script(babelify.code);
   const context = vm.createContext({
@@ -63,6 +63,7 @@ const readFile = async (fileLocation, benchManager) => {
         console.log(...args);
       },
     },
+    ...globals
   });
   try {
     script.runInNewContext(context, { displayErrors: true });
@@ -77,17 +78,16 @@ const readFile = async (fileLocation, benchManager) => {
  * @param {Obbject} logger Logging class
  * @param {Object} options overrides passed in
  */
-const scanForFiles = async (benchManager, logger, { exclude } = {}) => {
-  const exclude_string = Array.isArray(exclude) ? `!(${exclude.join("|")}|node_modules)` : `!(${exclude}|node_modules)`;
+const scanForFiles = async (benchManager, logger, {globals}) => {
   return new Promise((resolve, reject) => {
     const currentLocation = process.cwd();
-    glob(`${currentLocation}/{**${exclude_string}/,*}*.bench.js`, {}, async function (err, files) {
+    glob(`${currentLocation}/**/*.bench.js`, {}, async function (err, files) {
       const progress = logger.startTask(`Compiling files`, files.length);
       if (err) reject(err);
       const arr = [];
       for (const file of files) {
         progress.tick();
-        await readFile(file, benchManager);
+        await readFile(file, benchManager, globals);
         arr.push(file);
       }
       resolve(arr);

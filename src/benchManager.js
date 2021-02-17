@@ -1,15 +1,20 @@
 const executor = require("./executor.js");
 const pluralize = require("pluralize");
-
-const precisionAmounts = [200, 100];
+const {
+  complexity: defaultComplexity,
+  iterations: defaultIterations,
+} = require("./utils/defaults");
 
 /**
  * Handles the loading and storing of all benchmarks we find
  */
 class BenchManager {
-  constructor({ isNode = true, logger }) {
+  constructor({ isNode = true, logger, bail, iterations, complexity }) {
     this.isNode = isNode;
     this.logger = logger;
+    this.bail = bail;
+    this.iterations = iterations;
+    this.complexity = complexity;
     this.runs = new Set();
   }
 
@@ -84,24 +89,60 @@ class BenchManager {
    * @param {String} name the name of the function to be run
    * @param {Object} options overwrite options for this benchmark
    */
-  async _runBenchmark(fn, name, options) {
+  async _runBenchmark(fn, name, { complexity: benchComplexity, iterations: benchIterations, schema } = {}) {
     let data = {};
-    for (let i = 0; i < precisionAmounts.length; i++) {
+    const complexity = (() => {
+      if (benchComplexity) {
+        if (Array.isArray(benchComplexity) && benchComplexity.length > 1) {
+          return benchComplexity;
+        }
+      } else if (Array.isArray(this.complexity) && this.complexity.length > 1) {
+        return this.complexity;
+      } else {
+        throw {
+          error: `Invalid complexity value should be an array of integers. Default is ${defaultComplexity}. Provided ${
+            benchComplexity ? benchComplexity : this.complexity
+          }`,
+          benchName: name,
+        };
+      }
+    })();
+    const iterations = (() => {
+      if (benchIterations) {
+        if (Number.isInteger(+benchIterations)) {
+          return +benchIterations;
+        }
+      } else if (Number.isInteger(+this.iterations)) {
+        return +this.iterations;
+      } else {
+        throw {
+          error: `Invalid iteration value for ${name} should be an integer. Default is ${defaultIterations}. Provided ${
+            benchIterations ? benchIterations : this.iterations
+          }`,
+          benchName: name,
+        };
+      }
+    })();
+    for (let i = 0; i < complexity.length; i++) {
       let runData;
       try {
         runData = await executor(fn, {
-          ...options,
-          arrayAmount: 1000,
-          complexity: precisionAmounts[i],
+          schema,
+          iterations,
+          complexity: +complexity[i],
           isNode: this.isNode,
           name,
         });
         data = { ...data, ...runData };
       } catch (e) {
-        return { error: e };
+        if (this.bail === true) {
+          throw { error: e, benchName: name };
+        } else {
+          return { error: e };
+        }
       }
       // If we have run all the iterations we should return the values
-      if (i === precisionAmounts.length - 1) {
+      if (i === complexity.length - 1) {
         return { data };
       }
     }

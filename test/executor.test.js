@@ -4,7 +4,7 @@ const executor = require("../src/executor.js");
 
 const sortFn = arr => arr.sort((a, b) => a - b);
 
-const options = { schema: () => [3, 1, 2], arrayAmount: 1, isNode: true };
+const options = { schema: () => [3, 1, 2], iterations: 100, complexity: 100, isNode: true };
 
 test("Function -> Provide a valid function", async t => {
   await t.notThrowsAsync(
@@ -42,10 +42,7 @@ test("String -> Provide a valid string function ", async t => {
 });
 
 test("String -> Provide a valid string function", async t => {
-  await t.notThrowsAsync(
-    async () =>
-      await executor("arr => arr.sort((a,b) => a-b);", options)
-  );
+  await t.notThrowsAsync(async () => await executor("arr => arr.sort((a,b) => a-b);", options));
 });
 
 test("String -> Provide garbage", async t => {

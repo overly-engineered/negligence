@@ -1,4 +1,4 @@
-const BenchManager = require("./benchManager.js");
+const BenchManager = require("./benchmanager.js");
 const analyser = require("./analyser.js");
 const scanForFiles = require("./finder.js");
 const Display = require("./display.js");
@@ -8,33 +8,41 @@ const Display = require("./display.js");
  *
  * Responsible for running the process from finding files to printing results.
  */
-class _Orchestrator {
+class Orchestrator {
   constructor(config = {}) {
+    this.config = config;
     this.results = {};
-    this.iterator;
-    this.startTime;
     this.runningInNode = typeof process === "object";
-    this.totalRuns = 0;
-    this.logging = true;
-    this.logger = Display.setConfig({ ...config });
 
-    this.BenchManager = new BenchManager({ isNode: this.runningInNode, logger: this.logger });
+    this.logger = Display.setConfig({ ...this.config });
+
+    this.BenchManager = new BenchManager({ isNode: this.runningInNode, logger: this.logger, ...this.config });
   }
 
   /**
    * Start the whole process
    */
   async run() {
-    await scanForFiles(this.BenchManager, this.logger, { exclude: ["a", "b"] });
-    const results = await this.BenchManager.execute();
-    const analysedResults = analyser(results, this.runningInNode, this.logger);
-    if (this.runningInNode) {
-      this.logger.printResults(analysedResults);
-    } else {
-      console.log(analysedResults);
+    await scanForFiles(this.BenchManager, this.logger, { globals: this.config.globals });
+    try {
+      const results = await this.BenchManager.execute();
+      const analysedResults = analyser(results, this.runningInNode, this.logger);
+      if (this.runningInNode) {
+        this.logger.printResults(analysedResults);
+      } else {
+        console.log(analysedResults);
+      }
+    } catch (e) {
+      if (e.benchName) {
+        console.log("\n\nAborted due to error, bench execution error");
+        console.log(e.benchName);
+        console.error(e.error);
+      } else {
+        console.log("\n\n Unknown error");
+        console.error(e);
+      }
     }
   }
 }
 
-const orchestrator = new _Orchestrator();
-module.exports = orchestrator;
+module.exports = Orchestrator;

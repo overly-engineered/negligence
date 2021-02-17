@@ -1,7 +1,7 @@
 /* global benchmark */
 import { INT } from "./../../../src/utils/dataTypes.js";
 
-benchmark("demo4 Constant O(1)", data => data[0], { schema: [INT] });
+benchmark("demo4 Constant O(1)", data => data[0], { schema: () => [2, 3, 1] });
 
 benchmark(
   "demo4 Linear map O(n)",
@@ -10,7 +10,11 @@ benchmark(
       d;
     });
   },
-  { schema: [INT] }
+  {
+    schema: [() => 1],
+    iterations: 10_000,
+    complexity: [100, 200],
+  }
 );
 
 const m = Number.MAX_SAFE_INTEGER / 2;

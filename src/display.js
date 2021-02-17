@@ -17,16 +17,17 @@ const QUESTION = "?";
 
 const VERBOSE = 2;
 const WARNONLY = 1;
-
+const { verbosity, threshold } = require("./utils/defaults");
 const DEFAULT_CONFIG = {
-  verbosity: VERBOSE
+  verbosity,
+  threshold
 };
 
 /**
  * Display class
  */
 class _Display {
-  constructor(params) {
+  constructor() {
     this.task;
     this.config;
     this.ProgressBar = new Multiprogress(process.stderr);
@@ -41,7 +42,7 @@ class _Display {
    * @param {*} config
    */
   setConfig(config) {
-    this.config = { ...config, ...DEFAULT_CONFIG };
+    this.config = { ...DEFAULT_CONFIG, ...config };
     return this;
   }
 
@@ -173,7 +174,7 @@ class _Display {
    */
   printFileResult(key, group) {
     const groupErrors = group.filter(fnResults => {
-      return fnResults.error || fnResults.stats.percentageIncrease > 150;
+      return fnResults.error || fnResults.stats.percentageIncrease > this.config.threshold;
     });
     if (groupErrors.length) {
       this.globalErrors.push({ key, error: groupErrors });

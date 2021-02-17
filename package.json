@@ -6,10 +6,10 @@
   "license": "MIT",
   "main": "main.js",
   "bin": {
-    "negligence": "./index.js"
+    "negligence": "./index"
   },
   "scripts": {
-    "solo": "node --expose-gc ./index.js",
+    "solo": "node ./index.js",
     "test": "NODE_ENV='test' ava --serial --verbose",
     "test:watch": "ava --verbose --watch",
     "lint": "eslint .",
@@ -27,8 +27,8 @@
     "@babel/plugin-transform-modules-commonjs": "7.12.13",
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "7.12.13",
-    "babel-plugin-transform-imports": "^2.0.0",
     "babel-plugin-module-resolver": "^4.1.0",
+    "babel-plugin-transform-imports": "^2.0.0",
     "babel-preset-es2015": "^6.24.1",
     "colors": "1.4.0",
     "core-js": "2.6.12",
@@ -36,6 +36,7 @@
     "multi-progress": "^4.0.0",
     "pluralize": "8.0.0",
     "progress": "2.0.3",
+    "unique-names-generator": "^4.3.1",
     "yargs": "16.2.0"
   },
   "directories": {

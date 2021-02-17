@@ -1,5 +1,5 @@
 const test = require("ava");
-const BenchManager = require("./../src/benchManager");
+const BenchManager = require("../src/benchmanager");
 const Display = require("./../src/display.js");
 const logger = Display.setConfig({});
 const benchManager = new BenchManager({ logger });
@@ -10,7 +10,7 @@ test.beforeEach("Clear BenchManager", () => {
 
 const name = "abc";
 const fn = function () {};
-const options = {};
+const options = {complexity: [100, 200], iterations: 100};
 
 test("Ensure added test is part of set", t => {
   benchManager.benchmark(name, fn, options);

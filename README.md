@@ -180,6 +180,11 @@ benchmark(
 | --verbosity  | number  | 2         | Options: 1 or 2. The verbosity of the results displayed. 1 will only display errors or warnings              |
 | --threshold  | bumber  | 125       | The percentage increase needed for a warning to be displayed.                                                |
 
+### Help
+For cli options use
+```bash
+negligence --help
+```
 ## Other dependencies
 
 Negligence will attempt to resolve any other depdendencies included into your test file. If you are running into a persistent error please raise an issue.

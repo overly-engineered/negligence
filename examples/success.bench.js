@@ -1,32 +1,33 @@
 /* global benchmark */
-import { INT } from "./../../src/utils/dataTypes.js";
+import { INT } from "../src/utils/dataTypes.js";
+import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
 
-benchmark("demo2 Constant O(1)", data => data[0], { schema: [INT] });
-
-benchmark(
-  "demo2 Linear map O(n)",
-  data => {
-    data.map(d => {
-      d;
-    });
-  },
-  { schema: [INT] }
-);
+benchmark("Constant O(1)", data => data[0], { schema: [INT] });
 
 const m = Number.MAX_SAFE_INTEGER / 2;
+(async () => {
+  await benchmark(
+    "Linear map O(n)",
+    async data => {
+      await data.map(d => (d += m));
+    },
+    { schema: [INT], complexity: [10, 20], iterations: 100 }
+  );
+})();
+
 benchmark(
-  "demo2 Linear filter O(n)",
+  "Linear filter O(n)",
   data => {
     data.filter(d => {
-      d < m;
+      d.length > 10;
     });
   },
-  { schema: [INT] }
+  { schema: [() => uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] })] }
 );
 
 (async () => {
   await benchmark(
-    "demo2 Quadratic O(N2)",
+    "Quadratic O(N2)",
     `async data => {
       const p = []
       for(let i = 0; i < data.length; i++) {
@@ -41,7 +42,7 @@ benchmark(
 })();
 
 benchmark(
-  "demo2 Linear Loop O(n)",
+  "Linear Loop with array copy O(n)",
   data => {
     let res = [];
     for (let i = 0; i < data.length; i++) {
@@ -53,7 +54,7 @@ benchmark(
 );
 
 benchmark(
-  "demo2 Logarithmic O(nlogn)",
+  "Logarithmic O(nlogn)",
   data => {
     const binarySearch = (arr, target) => {
       let left = 0;

@@ -10,7 +10,7 @@ test.beforeEach("Clear BenchManager", () => {
 
 const name = "abc";
 const fn = function () {};
-const options = {complexity: [100, 200], iterations: 100};
+const options = {schema: {}, complexity: [100, 200], iterations: 100};
 
 test("Ensure added test is part of set", t => {
   benchManager.benchmark(name, fn, options);

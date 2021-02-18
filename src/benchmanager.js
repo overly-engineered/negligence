@@ -27,6 +27,9 @@ class BenchManager {
    * @param {Object} options overwride options for this specific bench
    */
   benchmark(name, fn, options = {}) {
+    if(!options.schema) {
+      throw Error(`ERROR: Benchmark "${name}" has not been provided with a schema. All benchmarks should be provided a schema option`)
+    }
     this.addBench({ name, fn, options });
   }
 

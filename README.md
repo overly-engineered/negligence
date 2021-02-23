@@ -4,6 +4,8 @@ Negligence is a performant javascript benchmarking, used to measure the performa
 
 Each bench will be run multiple times against two different data lengths, then calculate the percentage increase across the average durations.
 
+See a demo (here)[https://pettman.io/negligence]. Although this will not be as effective as when running from node it is an effective demonstration
+
 ---
 
 ## Installation:

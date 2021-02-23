@@ -9,7 +9,7 @@ const {
  * Handles the loading and storing of all benchmarks we find
  */
 class BenchManager {
-  constructor({ isNode = true, logger, bail, iterations, complexity }) {
+  constructor({ isNode = true, logger, bail, iterations, complexity } = {}) {
     this.isNode = isNode;
     this.logger = logger;
     this.bail = bail;

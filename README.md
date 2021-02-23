@@ -1,6 +1,6 @@
 # Negligence
 
-Negligence is a performant javascript benchmarking, used to measure the performance impact of your code dependening on array size and complexity.
+Negligence is a performant javascript benchmarking, used to measure the performance impact of your code dependent on array size and complexity.
 
 Each bench will be run multiple times against two different data lengths, then calculate the percentage increase across the average durations.
 
@@ -16,8 +16,7 @@ Add the command to your package.json
 
 ```json
 {
-  scripts: {
-    ...
+  "scripts": {
     "bench": "negligence"
   }
 }
@@ -39,7 +38,7 @@ All files should be suffixed with `.bench.js` or they won't be picked up.
 /* global benchmark */
 
 benchmark(
-  "Filters the array",
+  "Sorts the array",
   data => {
     data.sort();
   },
@@ -57,7 +56,7 @@ Options can be passed in, either on a per bench basis or at a global level excep
 
 ### Bench Functions
 
-There is no restriction on what you can do inside of bench functions. If it runs in node it should run in negligence.
+There is no restriction on what you can do inside of bench functions. If it runs in NodeJS it should run in negligence.
 
 Each function will be passed an array of data in the form specified by the schema.
 
@@ -162,9 +161,9 @@ benchmark(
     data.sort();
   },
   {
-    /* How much data should be passed in to the bench function. The second value should be double the first for accurate percentage increases. You can pass more than two values into this array for more accurate analysis but only the first two will be used for creating the percentage increase. Increasing these values will increas the length of time benches take to run. */
+    /* How much data should be passed into the bench function. The second value should be double the first for accurate percentage increases. You can pass more than two values into this array for more accurate analysis but only the first two will be used for creating the percentage increase. Increasing these values will increase the length of time benches take to run. */
     complexity: [100, 200],
-    /* How many times should the bench function be run PER COMPLEXITY VALUE. Increasing this will mean in more accurate results, but will increase the length of time benches take to run. */
+    /* How many times should the bench function be run PER COMPLEXITY VALUE. Increasing this will mean more accurate results, but will increase the length of time benches take to run. */
     iterations: 1000,
   }
 );
@@ -178,7 +177,7 @@ benchmark(
 | --complexity | array   | [100,200] | How many items of data should be passed into the bench function.                                             |
 | --iteration  | number  | 1000      | How many times should the bench function be run.                                                             |
 | --verbosity  | number  | 2         | Options: 1 or 2. The verbosity of the results displayed. 1 will only display errors or warnings              |
-| --threshold  | bumber  | 125       | The percentage increase needed for a warning to be displayed.                                                |
+| --threshold  | number  | 125       | The percentage increase needed for a warning to be displayed.                                                |
 
 ### Help
 For cli options use
@@ -187,7 +186,7 @@ negligence --help
 ```
 ## Other dependencies
 
-Negligence will attempt to resolve any other depdendencies included into your test file. If you are running into a persistent error please raise an issue.
+Negligence will attempt to resolve any other dependencies included in your test file. If you are running into a persistent error please raise an issue.
 
 ## Contributing
 

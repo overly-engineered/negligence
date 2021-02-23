@@ -1,7 +1,7 @@
 {
   "name": "negligence",
   "description": "Performance benchmarking for Javascript",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Jamie Pettman",
   "license": "MIT",
   "main": "main.js",

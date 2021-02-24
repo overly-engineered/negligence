@@ -11,7 +11,7 @@ See a demo [here](https://pettman.io/negligence). Although this will not be as e
 ## Installation:
 
 ```bash
-npm i negligence
+npm i --save-dev negligence
 ```
 
 Add the command to your package.json

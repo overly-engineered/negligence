@@ -199,3 +199,7 @@ Please make sure to update tests as appropriate.
 ## License
 
 [MIT](https://github.com/overly-engineered/negligence/blob/core/LICENSE)
+
+## Diagram
+
+![Visualization of the codebase](./diagram.svg)
